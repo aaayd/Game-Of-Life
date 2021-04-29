@@ -17,31 +17,29 @@ class Board:
     def _draw_grid(self):
         for col in range(self._cols):
             for row in range(self._rows):
-                shape_width = col * self._cell_size
-                shape_height = row * self._cell_size
+                x = col * self._cell_size
+                y = row * self._cell_size
 
-                pygame.draw.line(self._display, COLOUR_GREY, (shape_width, shape_height), (shape_width, self._window[0]))
-                pygame.draw.line(self._display, COLOUR_GREY, (shape_width, shape_height), (self._window[1], shape_height))
+                pygame.draw.line(self._display, COLOUR_GREY, (x, y), (x, self._window[0]))
+                pygame.draw.line(self._display, COLOUR_GREY, (x, y), (self._window[1], y))
 
     def _draw_cells(self):
         for col in self._grid:
             for cell in col:
-                x, y = cell.position
-                
+                x,y = cell.position
                 if cell.is_alive:
                     pygame.draw.rect(self._display, COLOUR_CELL, (x * self._cell_size, y * self._cell_size, self._cell_size, self._cell_size))
-                    
                 else:
                     pygame.draw.rect(self._display, COLOUR_BLACK, (x * self._cell_size, y * self._cell_size, self._cell_size, self._cell_size))
 
+    
     def _update_cells(self):
-        [[cell.validate(self) for cell in col] for col in self._grid]
+        self._grid = [[cell.validate(self) for cell in col] for col in self._grid]
     
     def update(self):
-        self._draw_cells()
-        self._draw_grid()
-
         self._update_cells()
+        self._draw_cells()
+        self._draw_grid()        
         pygame.display.update()
 
 class Cell:
@@ -60,32 +58,29 @@ class Cell:
         return self._status == 1
 
     def _neighbour_count(self, board : Board):
-        column, rows = self.position
+        cell_col, cell_row = self.position
         count = 0
         for i in range(-1, 2):
-            for j in range(-1, 2):
-                col = (rows + j + board._cols) % board._cols
-                row = (column + i + board._rows) % board._rows
-                
+            col = (cell_col + i) % board._cols
+            for j in range(-1, 2):                
+                row = (cell_row + j) % board._rows
                 count += board._grid[row][col].is_alive
-
-        count -= board._grid[row][column].is_alive
+        count -= board._grid[cell_row][cell_col].is_alive
         return count
 
     
     def validate(self, board : Board):
         neighbour_count = self._neighbour_count(board)
 
+        newcell = Cell(*self.position)
+        newcell._status = self._status
+
         if self.is_alive:
-            if neighbour_count < 2 or neighbour_count > 3:
-                self.set_dead()
-
-            elif neighbour_count == 3 or neighbour_count == 2:
-                self.set_alive()
-
+            if not (1 < neighbour_count < 4):
+                newcell.set_dead()
         else:
             if neighbour_count == 3:
-                self.set_alive()
+                newcell.set_alive()
 
-        
+        return newcell
 
