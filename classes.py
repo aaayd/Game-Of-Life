@@ -17,11 +17,11 @@ class Board:
     def _draw_grid(self):
         for col in range(self._cols):
             for row in range(self._rows):
-                x = col * self._cell_size
-                y = row * self._cell_size
+                shape_width = col * self._cell_size
+                shape_height = row * self._cell_size
 
-                pygame.draw.line(self._display, COLOUR_GREY, (x, y), (x, self._window[0]))
-                pygame.draw.line(self._display, COLOUR_GREY, (x, y), (self._window[1], y))
+                pygame.draw.line(self._display, COLOUR_GREY, (shape_width, shape_height), (shape_width, self._window[0]))
+                pygame.draw.line(self._display, COLOUR_GREY, (shape_width, shape_height), (self._window[1], shape_height))
 
     def _draw_cells(self):
         for col in self._grid:
@@ -60,16 +60,16 @@ class Cell:
         return self._status == 1
 
     def _neighbour_count(self, board : Board):
-        x, y = self.position
+        column, rows = self.position
         count = 0
         for i in range(-1, 2):
             for j in range(-1, 2):
-                col = (y + j + board._cols) % board._cols
-                row = (x + i + board._rows) % board._rows
+                col = (rows + j + board._cols) % board._cols
+                row = (column + i + board._rows) % board._rows
                 
                 count += board._grid[row][col].is_alive
 
-        count -= board._grid[y][x].is_alive
+        count -= board._grid[row][column].is_alive
         return count
 
     
