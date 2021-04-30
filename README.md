@@ -2,8 +2,13 @@
 Object Oriented Interpretation of The Game of Life
 
 # Config
-FPS - Edit the `fps` var in `main.py`
-Resolution - Edit the `window` var in `main.py` 
-Size of cell - Edit the `cell_size` var in `main.py` 
+FPS - Edit the `fps` var in `main.py` <br/>
+Resolution - Edit the `window` var in `main.py` <br/>
+Size of cell - Edit the `cell_size` var in `main.py` <br/>
 
-![Example](https://cdn.discordapp.com/attachments/811885989005492276/837678707757285376/eg.gif)
+#Example
+```py
+cell_size = 15
+window = 1920, 1080
+fps = 60
+```
