@@ -1,11 +1,10 @@
-from classes import Board
+from board import Board
 import pygame
 
 pygame.init()
 pygame.event.set_allowed([pygame.KEYDOWN])
-
-cell_size = 5
-window = 800, 450
+cell_size = 7
+window = 1200, 600
 fps = 30
 
 board = Board(window, cell_size, fps)
@@ -16,4 +15,3 @@ while True:
 
     board.update()
     pygame.display.update() 
-    
