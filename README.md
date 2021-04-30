@@ -6,6 +6,14 @@ FPS - Edit the `fps` var in `main.py` <br/>
 Resolution - Edit the `window` var in `main.py` <br/>
 Size of cell - Edit the `cell_size` var in `main.py` <br/>
 
+# Requirements
+1. pygame
+
+# Installation
+```
+pip install pygame
+```
+
 # Example
 This is an example of a config in `main.py`
 ```py
