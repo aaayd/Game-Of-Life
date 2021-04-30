@@ -1,10 +1,11 @@
 import pygame, random
-import numpy as np
 
 COLOUR_BACKGROUND = (15, 15, 20)
 COLOUR_OUTLINE = (0, 0, 0)
 COLOUR_CELL = (235, 137, 52)
 
+pygame.font.init()
+myfont = pygame.font.SysFont('Comic Sans MS', 30)
 clock = pygame.time.Clock()
 class Board:
     def __init__(self, window, cell_size, fps) -> None:
@@ -24,7 +25,6 @@ class Board:
             pygame.draw.line(self._display, COLOUR_OUTLINE, (1, size), (self._window[1] * 2, size))
 
     def _draw_cells(self) -> None:
-
         for col in self.grid:
             for cell in col:
                 x = self._cell_size *  cell.position[0]
@@ -37,6 +37,9 @@ class Board:
                         self._cell_size)
                     )                    
 
+    def _draw_text(self) -> None:
+        pop = myfont.render(f'Population: {round(len([col for col in self.grid for cell in col if cell.is_alive]) / self._cell_size)}', False, (255, 255, 255))
+        self._display.blit(pop,(0,0))
     
     def _update_cells(self):
         self.grid = [[cell.validate(self) for cell in col] for col in self.grid]
@@ -44,10 +47,11 @@ class Board:
     def update(self):
         clock.tick(self._fps)
         self._display.fill((COLOUR_BACKGROUND))
+
         self._update_cells()
         self._draw_cells()
-        
-        self._draw_grid()        
+        self._draw_grid()
+        self._draw_text()
         
 
 class Cell:
