@@ -1,50 +1,58 @@
 import pygame, random
+import numpy as np
 
-COLOUR_BLACK = (0,0,0)
-COLOUR_GREY = (20,20,20)
-COLOUR_CELL = (100,70,30)
+COLOUR_BACKGROUND = (15, 15, 20)
+COLOUR_OUTLINE = (0, 0, 0)
+COLOUR_CELL = (235, 137, 52)
 
+clock = pygame.time.Clock()
 class Board:
-    def __init__(self, window, cell_size, grid = None) -> None:
+    def __init__(self, window, cell_size, fps) -> None:
+        self._fps = fps
         self._cell_size = cell_size
         self._window = window
-        self._display = pygame.display.set_mode(self._window)
-        self._cols = int(self._display.get_width() / self._cell_size)
-        self._rows = int(self._display.get_height() / self._cell_size)
-        
-        self._grid = [[Cell(col, row) for col in range(self._cols)] for row in range (self._rows)] if grid is None else grid
+        self._display = pygame.display.set_mode(self._window, pygame.DOUBLEBUF | pygame.HWSURFACE, 4)
 
-    def _draw_grid(self):
-        for col in range(self._cols):
-            for row in range(self._rows):
-                x = col * self._cell_size
-                y = row * self._cell_size
+        self.cols = int(self._display.get_width() / self._cell_size + 2)
+        self.rows = int(self._display.get_height() / self._cell_size + 2)
+        self.grid = [[Cell(col, row) for col in range(self.cols)] for row in range (self.rows)]
 
-                pygame.draw.line(self._display, COLOUR_GREY, (x, y), (x, self._window[0]))
-                pygame.draw.line(self._display, COLOUR_GREY, (x, y), (self._window[1], y))
+    def _draw_grid(self) -> None:
+        for col in range(self.cols):
+            size = col * self._cell_size
+            pygame.draw.line(self._display, COLOUR_OUTLINE, (size, 1), (size, self._window[0]))
+            pygame.draw.line(self._display, COLOUR_OUTLINE, (1, size), (self._window[1] * 2, size))
 
-    def _draw_cells(self):
-        for col in self._grid:
+    def _draw_cells(self) -> None:
+
+        for col in self.grid:
             for cell in col:
-                x,y = cell.position
+                x = self._cell_size *  cell.position[0]
+                y = self._cell_size *  cell.position[1]
+                
                 if cell.is_alive:
-                    pygame.draw.rect(self._display, COLOUR_CELL, (x * self._cell_size, y * self._cell_size, self._cell_size, self._cell_size))
-                else:
-                    pygame.draw.rect(self._display, COLOUR_BLACK, (x * self._cell_size, y * self._cell_size, self._cell_size, self._cell_size))
+                    pygame.draw.rect(self._display, COLOUR_CELL, (
+                        x, y, 
+                        self._cell_size, 
+                        self._cell_size)
+                    )                    
 
     
     def _update_cells(self):
-        self._grid = [[cell.validate(self) for cell in col] for col in self._grid]
+        self.grid = [[cell.validate(self) for cell in col] for col in self.grid]
     
     def update(self):
+        clock.tick(self._fps)
+        self._display.fill((COLOUR_BACKGROUND))
         self._update_cells()
         self._draw_cells()
+        
         self._draw_grid()        
-        pygame.display.update()
+        
 
 class Cell:
     def __init__(self, col, row):
-        self._status = 1 if random.randint(1,5) == 1 else 0
+        self._status = random.randint(0,1)
         self.position = (col, row)
 
     def set_dead(self):
@@ -60,12 +68,13 @@ class Cell:
     def _neighbour_count(self, board : Board):
         cell_col, cell_row = self.position
         count = 0
+
         for i in range(-1, 2):
-            col = (cell_col + i) % board._cols
+            col = (cell_col + i) % board.cols
             for j in range(-1, 2):                
-                row = (cell_row + j) % board._rows
-                count += board._grid[row][col].is_alive
-        count -= board._grid[cell_row][cell_col].is_alive
+                row = (cell_row + j) % board.rows
+                count += board.grid[row][col].is_alive
+        count -= board.grid[cell_row][cell_col].is_alive
         return count
 
     
@@ -83,4 +92,3 @@ class Cell:
                 newcell.set_alive()
 
         return newcell
-
